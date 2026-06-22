@@ -260,6 +260,12 @@
     <p>バインセオ（約670円）が看板。揚げ春巻き・ホタテ焼きも当たり。</p>
     <div class="tip">💡 落ち着いて食べたい人向け。マダムランの近く（ハン川沿い）。</div>
     <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=An+Thoi+restaurant+Da+Nang">🗺 地図で開く</a></div>
+  <div class="card"><h3>🍜 ミークアン1A（朝食）</h3>
+    <div class="meta">ダナン名物の朝麺・ミシュラン認定(2024) ・ Hải Châu ・ 朝〜（早め推奨）</div>
+    <p>平たい米麺に少量スープ＋豚肉/エビ。地元の朝の定番。3日目バナヒルズへ向かう途中（両替の近く）に。</p>
+    <p>💰 1杯 約2〜3万VND（約110〜170円）</p>
+    <div class="tip">💡 人気具材は早めに売り切れることあり。朝早めが◎。予約不要。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Mi+Quang+1A+Da+Nang">🗺 地図で開く</a></div>
   <div class="area">🥖 バインミー</div>
   <div class="card"><h3>Bánh mì SAILS AND SKEWERS</h3>
     <div class="meta">★4.7(382) ・ ダナン ・ 約300円</div>
@@ -416,6 +422,15 @@
       <button id="pkAdd" class="badd">＋</button>
     </div>
   </div>
+  <div class="card"><h3>📅 事前予約リスト</h3>
+    <p class="lead" style="margin:2px 0 8px">予約が要る／推奨のものだけ。チェックして使ってください。</p>
+    <div class="chk"><input type="checkbox"><span><b>バナヒルズのチケット</b>：オンライン事前購入（KKday/Klook/Veltra）。行列回避＆割安で実質必須</span></div>
+    <div class="chk"><input type="checkbox"><span><b>カップルスパ</b>：人気店は予約（特にHerbal Spa）。希望の時間枠を確保</span></div>
+    <div class="chk"><input type="checkbox"><span><b>マダムラン（1日目夕食）</b>：夕食は予約推奨（ランタンの見える屋外席希望なら特に）</span></div>
+    <div class="chk"><input type="checkbox"><span><b>Ăn Thôi（3日目夕食）</b>：混む時間は予約が安心</span></div>
+    <div class="chk"><input type="checkbox"><span><b>ココナッツボート</b>：当日でも可。送迎付きツアー予約だと楽</span></div>
+    <div class="tip">💡 予約不要：Bánh Mỳ Phượng・ミークアン1A（並ぶ）／ドラゴン橋ショー（無料・自由）。</div>
+  </div>
   <div class="card"><h3>🔗 旅程をパートナーと共有</h3>
     <p class="lead" style="margin:2px 0 8px">下のボタンでリンクをコピー → LINEなどで相手に送ると、同じ旅程・予算・持ち物が開けます。</p>
     <button class="copybtn" id="shareBtn">🔗 共有リンクをコピー</button>
@@ -463,6 +478,7 @@ const BASE_PLACES = {
   coconut:    {n:"ココナッツボート", e:"🛶", a:"ホイアン(Cam Thanh)", lat:15.8918, lng:108.3560, q:"Cam Thanh Coconut Basket Boat Hoi An"},
   mykhe:      {n:"ミーケビーチ", e:"🏖", a:"ホテル前", lat:16.0544, lng:108.2480, q:"My Khe Beach Da Nang"},
   madamelan:  {n:"マダムラン（夕食）", e:"🍽", a:"ダナン", lat:16.0786, lng:108.2244, q:"Madame Lan Restaurant Da Nang"},
+  miquang:    {n:"ミークアン1A（朝食）", e:"🍜", a:"ダナン(Hải Châu)", lat:16.0735, lng:108.2140, q:"Mi Quang 1A Da Nang"},
   anthoi:     {n:"Ăn Thôi（夕食）", e:"🍽", a:"ダナン", lat:16.0470, lng:108.2440, q:"An Thoi restaurant Da Nang"},
   sails:      {n:"SAILS バインミー", e:"🥖", a:"ダナン", lat:16.0435, lng:108.2470, q:"Banh mi Sails and Skewers Da Nang"},
   phuong:     {n:"Bánh Mỳ Phượng", e:"🥖", a:"ホイアン", lat:15.8782, lng:108.3273, q:"Banh Mi Phuong Hoi An"},
@@ -489,7 +505,7 @@ let sb=null, cloudReady=false, myTs=0, lastTs=0, pushTimer=null;
 function localTs(){ return parseInt(localStorage.getItem('vn_ts')||'0',10); }
 function setLocalTs(t){ localStorage.setItem('vn_ts', t); }
 
-const STAY = {bana:330,hoian:120,coconut:90,mykhe:90,madamelan:75,anthoi:75,sails:30,phuong:20,littlemango:20,ubebe:40,thekheo:45,tan:45,ivegan:45,cuango:45,espresso:45,goldenlotus:90,herbal:90,brown:90,nguon:90,hotel:0,airport:60,soanha:15,sontra:40,dragon:20};
+const STAY = {bana:330,hoian:120,coconut:90,mykhe:90,madamelan:75,anthoi:75,sails:30,phuong:20,littlemango:20,ubebe:40,thekheo:45,tan:45,ivegan:45,cuango:45,espresso:45,goldenlotus:90,herbal:90,brown:90,nguon:90,hotel:0,airport:60,soanha:15,sontra:40,dragon:20,miquang:45};
 
 const GROUPS = [
   ["拠点", ["hotel","airport"]],
@@ -498,7 +514,7 @@ const GROUPS = [
   ["郊外", ["bana"]],
   ["ホイアン", ["hoian","coconut","phuong","ubebe","espresso"]],
   ["ダナン スポット/ビーチ", ["mykhe"]],
-  ["ダナン グルメ", ["madamelan","anthoi","sails","littlemango"]],
+  ["ダナン グルメ", ["madamelan","anthoi","sails","littlemango","miquang"]],
   ["ダナン カフェ", ["thekheo","tan","ivegan","cuango"]],
   ["スパ", ["goldenlotus","herbal","brown","nguon"]]
 ];
@@ -560,8 +576,8 @@ const DEFAULT_START = {d1:"17:55", d2:"08:30", d3:"08:00", d4:"08:00"};
 function mk(id,note,stay){ return {id,note,stay: stay==null?(STAY[id]||30):stay}; }
 const DEFAULT_DAYS = {
   d1:[mk("airport","入国・荷物受取＋空港で最低限だけ両替",60),mk("hotel","チェックイン",30),mk("madamelan","夕食（ベトナム料理）",75),mk("littlemango","マンゴーで一息",20),mk("sontra","ソンチャー夜市を散策",40),mk("hotel","戻り",0)],
-  d2:[mk("hotel","",0),mk("mykhe","ビーチで朝ゆっくり",150),mk("coconut","ボート",90),mk("phuong","昼ごはん（世界一バインミー）",30),mk("ubebe","マンゴーかき氷で休憩",45),mk("hoian","旧市街散策→夕食→日没→ランタン+灯籠流し",240),mk("hotel","戻り",0)],
-  d3:[mk("hotel","出発",0),mk("soanha","まとめて両替（レート市内一番・手数料ほぼ0）",15),mk("thekheo","朝カフェ",45),mk("bana","神の手",330),mk("goldenlotus","カップルスパ",90),mk("anthoi","夕食（ベトナム料理）",75),mk("sontra","ソンチャー夜市で買い物＆ショー待ち",150),mk("dragon","ドラゴン橋 21時の火・水ショー（金曜！）",20),mk("hotel","戻り",0)],
+  d2:[mk("hotel","朝食（ホテルのビュッフェ）",60),mk("mykhe","ビーチで朝ゆっくり",120),mk("coconut","ボート",90),mk("phuong","昼ごはん（世界一バインミー）",30),mk("ubebe","マンゴーかき氷で休憩",45),mk("hoian","旧市街散策→夕食(カオラウ等)→日没→ランタン+灯籠流し",240),mk("hotel","戻り",0)],
+  d3:[mk("hotel","出発",0),mk("miquang","朝食（名物ミークアン・ミシュラン認定）",45),mk("soanha","まとめて両替（レート市内一番・手数料ほぼ0）",15),mk("bana","神の手",330),mk("goldenlotus","カップルスパ",90),mk("anthoi","夕食（ベトナム料理）",75),mk("sontra","ソンチャー夜市で買い物＆ショー待ち",150),mk("dragon","ドラゴン橋 21時の火・水ショー（金曜！）",20),mk("hotel","戻り",0)],
   d4:[mk("hotel","チェックアウト",0),mk("sails","朝食バインミー（早朝営業は要確認）",30),mk("airport","11:50発",0)]
 };
 let DAYS = JSON.parse(localStorage.getItem('vn_days_v3')||'null') || JSON.parse(JSON.stringify(DEFAULT_DAYS));
@@ -569,11 +585,11 @@ let START = JSON.parse(localStorage.getItem('vn_start_v3')||'null') || JSON.pars
 function saveDays(){ localStorage.setItem('vn_days_v3', JSON.stringify(DAYS)); localStorage.setItem('vn_start_v3', JSON.stringify(START)); scheduleCloudPush(); }
 // 既存の保存プランを改善版の既定に一度だけ上書き（同系統の料理を同日に重ねない／夜スポット追加）
 // メモ・予算・持ち物・チェックは別キー保存のため保持される
-(function migrateV5(){
-  if(localStorage.getItem('vn_mig_v5')) return;
+(function migrateV6(){
+  if(localStorage.getItem('vn_mig_v6')) return;
   DAYS=JSON.parse(JSON.stringify(DEFAULT_DAYS));
   START=JSON.parse(JSON.stringify(DEFAULT_START));
-  localStorage.setItem('vn_mig_v5','1'); saveDays();
+  localStorage.setItem('vn_mig_v6','1'); saveDays();
 })();
 
 function optionsHTML(){
