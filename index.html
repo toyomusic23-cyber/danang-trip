@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0e7c66">
+<title>ダナン・ホイアン 旅のしおり</title>
+<style>
+  :root{
+    --bg:#f5f3ee; --card:#ffffff; --ink:#23201b; --sub:#7a7468;
+    --green:#0e7c66; --green-d:#0a5c4c; --gold:#d9a441; --line:#e7e2d8;
+    --pink:#d96b8a; --red:#c0392b; --shadow:0 2px 14px rgba(0,0,0,.07);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.6;
+    padding-bottom:80px; -webkit-text-size-adjust:100%;
+  }
+  header{background:linear-gradient(135deg,var(--green),var(--green-d)); color:#fff; padding:22px 18px 16px; position:relative; overflow:hidden;}
+  header h1{margin:0; font-size:21px; letter-spacing:.5px}
+  header p{margin:4px 0 0; font-size:12.5px; opacity:.85}
+  header .lantern{position:absolute; right:14px; top:10px; font-size:40px; opacity:.25}
+  main{padding:16px 14px}
+  section{display:none; animation:fade .25s ease}
+  section.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h2.tt{font-size:15px; margin:4px 0 12px; color:var(--green-d); display:flex; align-items:center; gap:7px}
+  .lead{font-size:12.5px;color:var(--sub);margin:-4px 0 12px}
+  .card{background:var(--card); border-radius:16px; padding:15px 15px; margin-bottom:13px; box-shadow:var(--shadow); border:1px solid var(--line);}
+  .card h3{margin:0 0 4px; font-size:15.5px}
+  .card .meta{font-size:12px; color:var(--sub); margin-bottom:6px}
+  .card p{margin:6px 0; font-size:13.5px}
+  .tip{background:#fff8e8; border-left:4px solid var(--gold); border-radius:8px; padding:8px 11px; font-size:12.7px; margin-top:8px; color:#7a5b18;}
+  .must{background:#fdeef3; border-left:4px solid var(--pink); border-radius:8px; padding:8px 11px; font-size:12.7px; margin-top:8px; color:#9c3a5a}
+  .warn{background:#fdecea; border-left:4px solid var(--red); border-radius:8px; padding:8px 11px; font-size:12.7px; margin-top:8px; color:#922; font-weight:600}
+  .ok{background:#e9f6f0; border-left:4px solid var(--green); border-radius:8px; padding:8px 11px; font-size:12.7px; margin-top:8px; color:var(--green-d)}
+  .maplink{display:inline-flex; align-items:center; gap:5px; margin-top:9px; background:var(--green); color:#fff; text-decoration:none; padding:8px 13px; border-radius:999px; font-size:12.5px; font-weight:600;}
+  /* weather */
+  .wx{display:flex;gap:9px;margin-bottom:14px}
+  .wxc{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:11px 12px}
+  .wxc .city{font-size:12px;color:var(--sub);font-weight:700}
+  .wxc .now{font-size:21px;font-weight:800;color:var(--green-d);line-height:1.1;margin:3px 0}
+  .wxc .now .ico{font-size:20px}
+  .wxc .days{display:flex;gap:6px;margin-top:6px;font-size:10px;color:var(--sub);text-align:center}
+  .wxc .days div span{display:block;font-size:14px}
+  .wxc .rain{font-size:10.5px;color:#3a6ea5}
+  /* day tabs */
+  .daytab{display:flex; gap:6px; margin-bottom:14px}
+  .daytab button{flex:1; border:1px solid var(--line); background:#fff; border-radius:12px; padding:8px 2px; font-size:11.5px; font-weight:700; color:var(--sub); line-height:1.25;}
+  .daytab button small{display:block;font-size:9.5px;font-weight:500;opacity:.8}
+  .daytab button.on{background:var(--green); color:#fff; border-color:var(--green)}
+  .day{display:none} .day.on{display:block}
+  .dayhead{font-size:13px;color:var(--green-d);font-weight:700;margin:0 0 10px;padding:7px 11px;background:#eef4f1;border-radius:10px}
+  .startrow{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--sub);margin:0 2px 10px}
+  .startrow input[type=time]{border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-size:13px;font-weight:700;color:var(--green-d)}
+  /* planner */
+  .stop{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:10px 12px;display:flex;align-items:flex-start;gap:9px}
+  .stop .emo{font-size:20px;line-height:1.4}
+  .stop .body{flex:1;min-width:0}
+  .stop .top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .stop .nm{font-size:14px;font-weight:600}
+  .stop .arr{font-size:11px;font-weight:700;color:#fff;background:var(--green);border-radius:6px;padding:1px 7px}
+  .stop .ar{font-size:11px;color:var(--sub)}
+  .stop .nt{margin-top:5px;width:100%;border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px;color:var(--ink);background:#fafaf7}
+  .stop .stayrow{margin-top:4px;font-size:11px;color:var(--sub);display:flex;align-items:center;gap:5px}
+  .stop .stayrow input{width:52px;border:1px solid var(--line);border-radius:7px;padding:2px 6px;font-size:12px;text-align:right}
+  .stop .ctl{display:flex;flex-direction:column;gap:3px}
+  .stop .ctl button{width:30px;height:24px;border:1px solid var(--line);background:#fff;border-radius:7px;font-size:13px;color:var(--sub);padding:0;line-height:1}
+  .stop .ctl button.del{color:var(--red)}
+  .seg{display:flex;align-items:center;gap:8px;padding:4px 0 4px 14px;margin:2px 0 2px 9px;border-left:2px dashed var(--line)}
+  .seg .info{font-size:12px;color:var(--sub);flex:1}
+  .seg .info b{color:var(--green-d);font-weight:700}
+  .seg .tag{font-size:9.5px;font-weight:700;border-radius:5px;padding:0 5px;margin-left:5px}
+  .seg .tag.real{background:#e9f6f0;color:var(--green-d)}
+  .seg .tag.est{background:#f1efe9;color:var(--sub)}
+  .seg .rt{font-size:11px;text-decoration:none;color:var(--green);font-weight:700;border:1px solid var(--green);border-radius:999px;padding:3px 9px;white-space:nowrap}
+  .seg.walk .info b{color:#9c3a5a}
+  .addwrap{display:flex;gap:7px;margin-top:12px}
+  .addwrap select{flex:1;border:1px solid var(--line);border-radius:10px;padding:9px 8px;font-size:13px;background:#fff;min-width:0}
+  .addwrap button{flex:0 0 auto;border:none;background:var(--green);color:#fff;border-radius:10px;font-size:13px;font-weight:700;padding:0 14px}
+  .geowrap{display:flex;gap:7px;margin-top:8px}
+  .geowrap input{flex:1;border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:13px;min-width:0}
+  .geowrap button{flex:0 0 auto;border:1px solid var(--green);background:#fff;color:var(--green-d);border-radius:10px;font-size:12.5px;font-weight:700;padding:0 12px}
+  .daysum{font-size:12px;color:var(--sub);margin:12px 2px 0;text-align:right}
+  .daysum b{color:var(--green-d)}
+  .resetbtn{display:block;width:100%;margin-top:14px;border:1px solid var(--line);background:#fff;color:var(--sub);border-radius:10px;padding:9px;font-size:12px}
+  /* generic */
+  .pill{display:inline-block; background:#eef4f1; color:var(--green-d); font-size:11px; padding:2px 9px; border-radius:999px; margin:0 4px 4px 0; font-weight:600}
+  .area{font-size:11px;font-weight:700;color:var(--sub);margin:18px 0 8px;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+  .area::after{content:"";flex:1;height:1px;background:var(--line)}
+  .ph{display:flex; align-items:baseline; gap:6px; font-size:13.5px; padding:3px 0}
+  .ph b{min-width:118px; display:inline-block}
+  .mvseg{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+  .mvseg:last-child{border:none}
+  .mvseg .lbl{flex:1}
+  .mvseg .val{color:var(--green-d);font-weight:700;white-space:nowrap}
+  .mvseg .rt{font-size:11px;text-decoration:none;color:var(--green);font-weight:700;border:1px solid var(--green);border-radius:999px;padding:3px 9px;white-space:nowrap}
+  /* budget */
+  .brow{display:flex; gap:7px; margin-top:8px}
+  .bin{flex:1; border:1px solid var(--line); border-radius:10px; padding:9px 10px; font-size:13.5px; min-width:0}
+  .bin.amt{flex:0 0 92px}
+  .badd{flex:0 0 44px; border:none; background:var(--green); color:#fff; border-radius:10px; font-size:20px; font-weight:700}
+  .bitem{display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px dashed var(--line); font-size:13.5px}
+  .bitem .bn{flex:1}
+  .bitem .bv{font-weight:700; color:var(--green-d)}
+  .bitem .bx{border:none; background:none; color:var(--red); font-size:17px; padding:0 2px}
+  .btot{margin-top:10px; font-size:14px}
+  .btot b{font-size:20px; color:var(--green-d)}
+  .btot #bYen{font-size:12.5px; color:var(--sub); margin-left:4px}
+  .fxrow{font-size:11.5px;color:var(--sub);margin-top:6px}
+  .chk{display:flex; align-items:flex-start; gap:10px; padding:7px 0; border-bottom:1px dashed var(--line); font-size:13.5px}
+  .chk:last-child{border:none}
+  .chk input{width:20px; height:20px; margin-top:2px; accent-color:var(--green); flex-shrink:0}
+  /* nav */
+  nav{position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--line); display:flex; padding:6px 2px calc(6px + env(safe-area-inset-bottom)); justify-content:space-around; box-shadow:0 -2px 12px rgba(0,0,0,.05); z-index:50;}
+  nav button{background:none; border:none; flex:1; padding:5px 0; color:var(--sub); font-size:8.5px; display:flex; flex-direction:column; align-items:center; gap:2px;}
+  nav button .ic{font-size:17px; line-height:1}
+  /* packing */
+  .pkitem{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+  .pkitem:last-child{border:none}
+  .pkitem input[type=checkbox]{width:20px;height:20px;accent-color:var(--green);flex-shrink:0}
+  .pkitem .pn{flex:1}
+  .pkitem .pn.done{text-decoration:line-through;color:var(--sub)}
+  .pkitem .px{border:none;background:none;color:var(--red);font-size:16px;padding:0 2px}
+  .copybtn{display:block;width:100%;border:none;background:var(--green);color:#fff;border-radius:10px;padding:11px;font-size:13.5px;font-weight:700;margin-top:8px}
+  .copybtn:active{background:var(--green-d)}
+  nav button.on{color:var(--green)}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="lantern">🏮</span>
+  <h1>ダナン・ホイアン 旅のしおり</h1>
+  <p>Đà Nẵng &amp; Hội An — 4日間 / カップル旅</p>
+</header>
+
+<main>
+
+<!-- ===== 旅程 ===== -->
+<section id="plan" class="active">
+  <div class="wx" id="weather"></div>
+  <p class="lead">↑↓並べ替え・×削除・下のメニューや検索で追加。開始時刻と各滞在時間から到着予定を自動計算。移動は実道路ルート（ネット接続時）で更新します。</p>
+  <div class="daytab">
+    <button class="on" data-d="d1">1日目<small>夜・到着</small></button>
+    <button data-d="d2">2日目<small>ホイアン</small></button>
+    <button data-d="d3">3日目<small>バナヒルズ</small></button>
+    <button data-d="d4">4日目<small>朝・出発</small></button>
+  </div>
+
+  <div class="day on" id="d1">
+    <div class="dayhead">🌃 1日目（水 6/24）— ダナン着 17:55 → しっかり夜遊び</div>
+    <div class="tip">💡 国際線は入国審査＋荷物受取で約60分。空港を出るのは19時前後の想定で組んでいます。</div>
+    <div class="startrow">開始（着陸）<input type="time" data-start="d1"></div>
+    <div class="planner" data-day="d1"></div>
+  </div>
+  <div class="day" id="d2">
+    <div class="dayhead">🏖🏮 2日目（木 6/25）— ビーチ → ココナッツボート → ホイアン夜ランタン</div>
+    <div class="must">💗 マスト：夜ランタン＋灯籠流し／ビーチ／ココナッツボート。ビーチはホテル前で移動ゼロ。</div>
+    <div class="tip">💡 昼前にホイアンへ出れば夜ランタンまで無理なく繋がります。ランタンは毎晩なので木曜でOK。</div>
+    <div class="startrow">開始<input type="time" data-start="d2"></div>
+    <div class="planner" data-day="d2"></div>
+  </div>
+  <div class="day" id="d3">
+    <div class="dayhead">⛰🐉 3日目（金 6/26）— バナヒルズ満喫 → 夜はドラゴン橋ショー</div>
+    <div class="must">💗 マスト：カップルスパは山の後の夕方に。ドラゴン橋の火・水ショーは<b>金21:00（今回唯一の観られる夜）</b>。</div>
+    <div class="tip">💡 朝の両替→バナヒルズ→スパ→夕食→ソンチャー夜市でショー待ち→21時ドラゴン橋、の流れ。羽織りもの・歩きやすい靴を。</div>
+    <div class="startrow">開始<input type="time" data-start="d3"></div>
+    <div class="planner" data-day="d3"></div>
+  </div>
+  <div class="day" id="d4">
+    <div class="dayhead">✈️ 4日目（土 6/27）— 出発 11:50（国際線）</div>
+    <div class="startrow">開始<input type="time" data-start="d4"></div>
+    <div class="planner" data-day="d4"></div>
+    <div id="airportCheck"></div>
+    <div class="card" style="margin-top:13px">
+      <h3>出発前チェック</h3>
+      <div class="chk"><input type="checkbox"><span>朝のうちにチェックアウト（標準12:00だが早めに）</span></div>
+      <div class="chk"><input type="checkbox"><span>パスポート・搭乗券</span></div>
+      <div class="chk"><input type="checkbox"><span>忘れ物確認・余ったドンの使い道</span></div>
+    </div>
+  </div>
+  <button class="resetbtn" id="resetPlan">↺ プランを初期状態に戻す</button>
+</section>
+
+<!-- ===== 移動 ===== -->
+<section id="move">
+  <h2 class="tt">🚗 移動の所要時間・料金</h2>
+  <p class="lead">フォーポイント起点。ネット接続時は実道路ルート、オフライン時は目安を表示。料金はGrabCar概算。</p>
+  <div class="area">🏨 ホテルから主要地点</div>
+  <div class="card" id="hotelTable"></div>
+  <div class="area">🗓 各日の移動（旅程と連動）</div>
+  <div id="moveDays"></div>
+  <div class="tip">💡 旅程を変えると区間・時間・料金もここに自動反映されます。</div>
+</section>
+
+<!-- ===== スポット ===== -->
+<section id="spot">
+  <h2 class="tt">📍 スポット</h2>
+  <div class="area">💱 両替（一番おすすめ）</div>
+  <div class="card"><h3>💱 Soạn Hà（ソアンハー金行）</h3><div class="meta">ハン市場の真横 ・ レート市内トップ級・手数料ほぼ0</div>
+    <p>ダナンで最も評判の両替所。<b>千単位</b>でまとめて両替して小銭を作るのがコツ。朝〜夕方営業（18時頃閉店のことあり）なので<b>2日目の朝</b>に。到着日(夜)は空港で最低限だけ。</p>
+    <div class="tip">⚠️ 2025〜26年に無認可の金行取り締まり強化。Soạn Hà のような有名店を使い、レート掲示・レシートを確認すると安心。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Tiem+Vang+Soan+Ha+Han+Market+Da+Nang">🗺 地図で開く</a>
+  </div>
+  <div class="area">⛰ 郊外</div>
+  <div class="card"><h3>🌉 バナヒルズ（神の手）</h3>
+    <div class="meta">Bà Nà Hills / Golden Bridge ・ 2日目 ・ 営業7:00–22:00（ケーブルカー8:00–17:00）</div>
+    <p>巨大な手が橋を支えるゴールデンブリッジが目玉。世界最長級ケーブルカーで標高1,482mの山頂へ約20分。フランス村・ファンタジーパーク・庭園・ワインセラーも入場料に込み。</p>
+    <p>💰 入場（ケーブルカー込み）大人 約100万VND（約6,000円）／子ども 約80万VND。2026年からチケットは最大3日間有効。</p>
+    <div class="tip">💡 混むので午前着が◎。山上は涼しいので羽織りもの。半日〜ほぼ1日みておく。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Ba+Na+Hills+Golden+Bridge+Da+Nang">🗺 地図で開く</a></div>
+  <div class="area">🏮 ホイアン</div>
+  <div class="card"><h3>🏮 ホイアン旧市街（夜ランタン）</h3>
+    <div class="meta">Hội An Ancient Town ・ 3日目メイン</div>
+    <p>世界遺産の街並み。夜はランタンが灯り、トゥボン川に灯籠が流れる。手漕ぎボートに乗って川の中心から灯籠を流せる。</p>
+    <p>💰 灯籠1個 約1万VND（約60円）／ボート20分 約15万VND（約900円・交渉制）。ボート営業16:00–21:30。</p>
+    <div class="tip">💡 ランタンの発色がキレイなのは暗くなる18時頃〜。それまでに旧市街入りが理想。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Hoi+An+Ancient+Town">🗺 地図で開く</a></div>
+  <div class="card"><h3>🛶 ココナッツボート</h3>
+    <div class="meta">Cam Thanh Coconut Village ・ 3日目 ・ 旧市街から車約10分</div>
+    <p>ヤシ林の水路をカゴ舟（バスケットボート）で巡る人気アクティビティ。船頭のクルクル回転パフォーマンスも。乗船30〜45分。</p>
+    <p>💰 現地手配 1人 約20〜30万VND（約1,200〜1,800円）。日本語ガイド付きツアーも有。</p>
+    <div class="tip">💡 旧市街の手前なので「ボート→旧市街→夜ランタン」の流れがスムーズ。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Cam+Thanh+Coconut+Basket+Boat+Hoi+An">🗺 地図で開く</a></div>
+  <div class="area">🏖 ダナン・ビーチ</div>
+  <div class="card"><h3>🏖 ミーケビーチ</h3>
+    <div class="meta">My Khe Beach ・ ホテル目の前 ・ いつでも</div>
+    <p>白砂のメインビーチ。お店も多くまったり。ホテルから徒歩すぐなので、朝・夕の空き時間に気軽に。</p>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=My+Khe+Beach+Da+Nang">🗺 地図で開く</a></div>
+  <div class="area">🌃 ナイト・夜景</div>
+  <div class="card"><h3>🌃 ソンチャー夜市</h3>
+    <div class="meta">Sơn Trà Night Market ・ ドラゴン橋の東側 ・ 営業 18:00–24:00</div>
+    <p>ダナン最大級のナイトマーケット。屋台グルメ・シーフード・お土産が並ぶ。ホテル（ミーケ側）から近く、夜の散歩にちょうどいい。</p>
+    <div class="tip">💡 週末19–21時は特に混む。ゆっくり見るなら18時頃か遅めに。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Son+Tra+Night+Market+Da+Nang">🗺 地図で開く</a></div>
+  <div class="card"><h3>🐉 ドラゴン橋（ロン橋）</h3>
+    <div class="meta">Dragon Bridge ・ ハン川 ・ 夜はライトアップ</div>
+    <p>龍の形をしたダナンのシンボル橋。夜は色が変わるライトアップ。</p>
+    <div class="tip">🔥 火・水を噴くショーは<b>金・土・日・祝の21:00のみ（約10分）</b>。今回は<b>3日目＝金6/26の夜が唯一の観られるタイミング</b>。東側のたもとが観覧スポット（隣のソンチャー夜市で待てる）。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Dragon+Bridge+Da+Nang">🗺 地図で開く</a></div>
+</section>
+
+<!-- ===== グルメ ===== -->
+<section id="food">
+  <h2 class="tt">🤤 グルメ</h2>
+  <p class="lead">¥は約6円/千ドンの目安。料金・営業時間は変動するので当日確認を。</p>
+  <div class="area">🍽 ごはん</div>
+  <div class="card"><h3>マダムラン（Madame Lân）</h3>
+    <div class="meta">★4.2(12,814) ・ ダナン(Bạch Đằng) ・ 6:30–21:30 通し・無休 ・ ミシュラン掲載</div>
+    <p>中部ベトナム料理の名店。名物はミークアン、中部風の小ぶりなバインセオ、バインベオ。写真メニューで頼みやすい。</p>
+    <p>💰 1人 約30万VND（約1,800円）</p>
+    <div class="tip">💡 初日の夕食向き。黄色い一軒家でランタンの雰囲気も◎。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Madame+Lan+Restaurant+Da+Nang">🗺 地図で開く</a></div>
+  <div class="card"><h3>Ăn Thôi</h3>
+    <div class="meta">★4.8(7,296) ・ ダナン(114 Bạch Đằng) ・ 10:30–21:30 ・ ミシュラン ビブグルマン</div>
+    <p>バインセオ（約670円）が看板。揚げ春巻き・ホタテ焼きも当たり。</p>
+    <div class="tip">💡 落ち着いて食べたい人向け。マダムランの近く（ハン川沿い）。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=An+Thoi+restaurant+Da+Nang">🗺 地図で開く</a></div>
+  <div class="area">🥖 バインミー</div>
+  <div class="card"><h3>Bánh mì SAILS AND SKEWERS</h3>
+    <div class="meta">★4.7(382) ・ ダナン ・ 約300円</div>
+    <p>炭火焼肉×とろとろチーズの穴場バインミー。No.1〜25の英語メニューで選びやすい。</p>
+    <div class="tip">💡 出発日の朝ごはん・持ち帰りにも。早朝の営業時間は当日Googleマップで確認を。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Banh+mi+Sails+and+Skewers+Da+Nang">🗺 地図で開く</a></div>
+  <div class="card"><h3>Bánh Mỳ Phượng</h3>
+    <div class="meta">ホイアン(2b Phan Chu Trinh) ・ 6:30–21:30 ・ 約120〜240円</div>
+    <p>1990年創業、アンソニー・ボーデインも絶賛した世界的有名店。20種以上の具材から選べる。</p>
+    <div class="tip">💡 夕方17:30〜20:00が最混雑。朝・昼が狙い目（回転は速い）。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Banh+Mi+Phuong+Hoi+An">🗺 地図で開く</a></div>
+  <div class="area">🥭 スイーツ</div>
+  <div class="card"><h3>Little Mango</h3>
+    <div class="meta">★4.9(1,416) ・ ダナン ・ Mサイズ約420円</div>
+    <p>致死量の完熟マンゴードリンク。デリバリーも人気。</p>
+    <div class="tip">💡 営業時間は当日Googleマップで確認を。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Little+Mango+Da+Nang">🗺 地図で開く</a></div>
+  <div class="card"><h3>Ubebe</h3>
+    <div class="meta">★4.9(4,269) ・ ホイアン旧市街 ・ 〜21:00</div>
+    <p>マンゴーたっぷりのココナッツかき氷。屋上から旧市街の絶景・エアコン完備の涼しい空間。</p>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Ubebe+Hoi+An">🗺 地図で開く</a></div>
+  <div class="card"><h3>Vinamilk 黒糖タピオカヨーグルト</h3>
+    <div class="meta">スーパー/コンビニ ・ お土産</div>
+    <p>ご当地タピオカヨーグルト（400g・4個入り）。機内のおやつやばらまき土産に。</p></div>
+  <div class="tip">💡 食べ歩きは少額の現金が便利。「千単位」で両替して小銭を作っておく作戦。</div>
+</section>
+
+<!-- ===== カフェ ===== -->
+<section id="cafe">
+  <h2 class="tt">☕️ カフェ</h2>
+  <p class="lead">¥は約6円/千ドンの目安。営業時間は変動するので当日確認を。</p>
+  <div class="area">☕️ ダナン</div>
+  <div class="card"><h3>The Kheo Coffee &amp; Brunch</h3>
+    <div class="meta">ダナン(An Thượng) ・ 2日目朝ブランチ候補</div>
+    <p>今トレンドのクレームブリュレ風カップコーヒー（カップごと食べられる）。ブランチ・パンも。</p>
+    <div class="tip">💡 営業時間は当日Googleマップで確認を。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=The+Kheo+Coffee+Brunch+Da+Nang">🗺 地図で開く</a></div>
+  <div class="card"><h3>Cửa Ngõ Cafe</h3>
+    <div class="meta">ダナン（ミーケビーチ徒歩10分）・ 6:30–22:30</div>
+    <p>オレンジ土壁＆中庭が映える南国カフェ。ビーチ前後の休憩に。</p>
+    <p>💰 ドリンク ₫2–4万（約120〜240円）</p>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Cua+Ngo+Cafe+Da+Nang">🗺 地図で開く</a></div>
+  <div class="card"><h3>Tân Coffee</h3>
+    <div class="meta">ダナン(10 Nguyễn Thiện Thuật, Hải Châu) ・ 7:00–22:30</div>
+    <p>名物のとうもろこしコーヒー。空間・ドリンクともに評判。</p>
+    <div class="tip">💡 出発日の早朝の朝食/コーヒーにも（7時開店）。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Tan+Coffee+10+Nguyen+Thien+Thuat+Da+Nang">🗺 地図で開く</a></div>
+  <div class="card"><h3>IVEGAN SUPERSHOP</h3>
+    <div class="meta">★4.7(1,765) ・ ダナン ・ 8:00開店 ・ ₫10–20万</div>
+    <p>濃厚アサイーボウルが満足感高めと評判のビーガン店。上の階は景色◎。</p>
+    <div class="tip">💡 出発日の朝食の代替候補（8時開店）。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=IVEGAN+Supershop+Da+Nang">🗺 地図で開く</a></div>
+  <div class="area">☕️ ホイアン</div>
+  <div class="card"><h3>The Espresso Station</h3>
+    <div class="meta">★4.7(1,226) ・ ホイアン(路地奥) ・ 7:30開店 ・ 現金のみ</div>
+    <p>細い路地の奥の静かなカフェ。バタフライピーのライムエードは色が変化する映えドリンク。</p>
+    <div class="tip">💡 3日目ホイアンのカフェ休憩に。支払いは現金のみ。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=The+Espresso+Station+Hoi+An">🗺 地図で開く</a></div>
+</section>
+
+<!-- ===== スパ ===== -->
+<section id="spa">
+  <h2 class="tt">💆 カップルスパ</h2>
+  <p class="lead">2日目の夜（バナヒルズ後）に入れると回復にちょうどいい。料金は目安・混む時間は予約を。¥は約6円/千ドン換算。</p>
+  <div class="card">
+    <h3>Golden Lotus Oriental Organic Spa</h3>
+    <div class="meta">営業 10:00–23:00 ・ 日本語通じる ・ 3店舗展開の人気チェーン</div>
+    <p>技術・清潔感ともに高評価の定番。看板は自家製オーガニックハーバルボール。</p>
+    <p>💰 アロマ60分 39万VND（約2,340円）／フット60分 35万VND（約2,100円）／フェイシャル付120分 65万VND（約3,900円）</p>
+    <div class="tip">💡 平日10–15時は全メニュー20%OFFのハッピーアワー。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Golden+Lotus+Oriental+Organic+Spa+Da+Nang">🗺 地図で開く</a>
+  </div>
+  <div class="card">
+    <h3>Herbal Spa</h3>
+    <div class="meta">受付 8:30–22:00 ・ 在住日本人「迷ったらここ」の不動の人気</div>
+    <p>ロマンチックな個室でカップル利用にぴったり。安定の満足度で予約が取りにくいことも。</p>
+    <div class="tip">💡 人気店なので事前予約推奨（電話/SNSで受付）。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Herbal+Spa+Da+Nang">🗺 地図で開く</a>
+  </div>
+  <div class="card">
+    <h3>Brown Spa</h3>
+    <div class="meta">営業 13:00–22:30 ・ An Thượng（市内中心）・ 2023年オープン</div>
+    <p>韓国人オーナーのおしゃれなアジアンモダン内装で女性・カップルに人気。全室個室。</p>
+    <p>💰 60分 47万VND〜（約2,800円〜）</p>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Brown+Spa+An+Thuong+Da+Nang">🗺 地図で開く</a>
+  </div>
+  <div class="card">
+    <h3>Nguon Spa</h3>
+    <div class="meta">営業 9:00–23:00 ・ My An（ホテルから近め）・ チップ不要</div>
+    <p>竹基調の上品な空間で技術は一流と評判。頭皮ケアセラピーも。</p>
+    <p>💰 マッサージ75分 約23USD（約3,400円）</p>
+    <div class="tip">💡 バウチャー購入後に予約する方式。ホテル（ミーケ側）から近いのが利点。</div>
+    <a class="maplink" target="_blank" href="https://www.google.com/maps/search/?api=1&query=Nguon+Spa+Da+Nang">🗺 地図で開く</a>
+  </div>
+</section>
+
+<!-- ===== 会話 ===== -->
+<section id="talk">
+  <h2 class="tt">💬 指差しベトナム語</h2>
+  <p class="lead">通じないときは画面を見せればOK。カッコ内は読み方の目安です。</p>
+  <div class="card"><h3>あいさつ・基本</h3>
+    <div class="ph"><b>こんにちは</b><span>Xin chào（シンチャオ）</span></div>
+    <div class="ph"><b>ありがとう</b><span>Cảm ơn（カムオン）</span></div>
+    <div class="ph"><b>すみません</b><span>Xin lỗi（シンロイ）</span></div>
+    <div class="ph"><b>はい / いいえ</b><span>Có（コー）/ Không（ホン）</span></div>
+    <div class="ph"><b>OK・大丈夫</b><span>Được（ドゥオック）</span></div>
+  </div>
+  <div class="card"><h3>お店・食事</h3>
+    <div class="ph"><b>いくらですか？</b><span>Bao nhiêu tiền?（バオニュウ ティエン）</span></div>
+    <div class="ph"><b>これください</b><span>Cho tôi cái này（チョートイ カイナイ）</span></div>
+    <div class="ph"><b>お会計お願いします</b><span>Tính tiền（ティンティエン）</span></div>
+    <div class="ph"><b>パクチー抜きで</b><span>Không rau mùi（ホン ザウムイ）</span></div>
+    <div class="ph"><b>辛くしないで</b><span>Không cay（ホン カイ）</span></div>
+    <div class="ph"><b>美味しい！</b><span>Ngon!（ンゴン）</span></div>
+  </div>
+  <div class="card"><h3>移動・トラブル</h3>
+    <div class="ph"><b>ここへ行きたい</b><span>Tôi muốn đến đây（トイムオン デンダイ）</span></div>
+    <div class="ph"><b>止めてください</b><span>Dừng lại（ズンライ）</span></div>
+    <div class="ph"><b>トイレはどこ？</b><span>Nhà vệ sinh ở đâu?（ニャーヴェシン オダウ）</span></div>
+    <div class="ph"><b>助けて！</b><span>Cứu tôi!（クウトイ）</span></div>
+  </div>
+  <div class="card"><h3>数字</h3>
+    <div class="ph"><b>1〜5</b><span>một / hai / ba / bốn / năm</span></div>
+    <div class="ph"><b>6〜10</b><span>sáu / bảy / tám / chín / mười</span></div>
+    <div class="ph"><b>1,000 / 10,000</b><span>nghìn（ンギン）/ mười nghìn</span></div>
+    <div class="tip">💡 値段は「nghìn（千）」単位で言われがち。「ba mươi」=30なら 30,000ドンのことが多い。</div>
+  </div>
+</section>
+
+<!-- ===== メモ ===== -->
+<section id="memo">
+  <h2 class="tt">💴 お金・準備メモ</h2>
+  <div class="card"><h3>💱 両替のコツ</h3>
+    <p><span class="pill">NoFee で両替</span><span class="pill">千単位で</span></p>
+    <p>手数料無料（<b>NoFee</b>）の店で換金。<b>「万」ではなく「千」単位</b>で両替すると小銭ができて使いやすい。</p>
+    <div class="tip" id="fxTip">💡 レート取得中…</div>
+  </div>
+  <div class="card"><h3>🧾 予算メモ</h3>
+    <p class="lead" style="margin:2px 0 8px">使った金額をメモ。合計と円換算（リアルタイムレート）を自動表示。</p>
+    <div id="budgetList"></div>
+    <div class="brow">
+      <input id="bItem" class="bin" placeholder="項目（例：バナヒルズ）">
+      <input id="bAmt" class="bin amt" type="number" inputmode="numeric" placeholder="ドン">
+      <button id="bAdd" class="badd">＋</button>
+    </div>
+    <div class="btot">合計 <b id="bTotal">0</b> ドン <span id="bYen"></span></div>
+    <div class="fxrow" id="fxRow"></div>
+  </div>
+  <div class="card"><h3>🎒 持ち物リスト</h3>
+    <p class="lead" style="margin:2px 0 8px">チェック・追加・削除できます（自動保存）。</p>
+    <div id="packList"></div>
+    <div class="brow">
+      <input id="pkItem" class="bin" placeholder="持ち物を追加（例：日焼け止め）">
+      <button id="pkAdd" class="badd">＋</button>
+    </div>
+  </div>
+  <div class="card"><h3>🔗 旅程をパートナーと共有</h3>
+    <p class="lead" style="margin:2px 0 8px">下のボタンでリンクをコピー → LINEなどで相手に送ると、同じ旅程・予算・持ち物が開けます。</p>
+    <button class="copybtn" id="shareBtn">🔗 共有リンクをコピー</button>
+  </div>
+  <div class="card"><h3>📱 Grab（配車アプリ）</h3>
+    <p>出発前に <b>Grab</b> をインストール＆登録。タクシー・バイク・フードまでこれ1つ。料金が事前確定でぼったくり回避にも◎。</p>
+  </div>
+  <div class="card"><h3>✅ 出発前チェックリスト</h3>
+    <div class="chk"><input type="checkbox"><span>Grab アプリ登録（カード or 現金設定）</span></div>
+    <div class="chk"><input type="checkbox"><span>パスポート（残存期間）・eチケット</span></div>
+    <div class="chk"><input type="checkbox"><span>海外データ（SIM / eSIM / ローミング）</span></div>
+    <div class="chk"><input type="checkbox"><span>モバイルバッテリー・変換プラグ</span></div>
+    <div class="chk"><input type="checkbox"><span>バナヒルズ用の羽織りもの・歩きやすい靴</span></div>
+    <div class="chk"><input type="checkbox"><span>カップルスパの目星＆予約検討</span></div>
+  </div>
+  <div class="card"><h3>🆘 メモ</h3>
+    <p class="lead">緊急: 警察113 / 救急115 / 消防114<br>天気・為替・実道路ルートはネット接続時に自動更新。地図リンクのみ通信が必要です。</p>
+  </div>
+</section>
+
+</main>
+
+<nav>
+  <button class="on" data-s="plan"><span class="ic">🗺️</span>旅程</button>
+  <button data-s="move"><span class="ic">🚗</span>移動</button>
+  <button data-s="spot"><span class="ic">📍</span>スポット</button>
+  <button data-s="food"><span class="ic">🤤</span>グルメ</button>
+  <button data-s="cafe"><span class="ic">☕️</span>カフェ</button>
+  <button data-s="spa"><span class="ic">💆</span>スパ</button>
+  <button data-s="talk"><span class="ic">💬</span>会話</button>
+  <button data-s="memo"><span class="ic">💴</span>メモ</button>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============ 場所マスタ ============ */
+const BASE_PLACES = {
+  hotel:      {n:"フォーポイント（ホテル）", e:"🏨", a:"ミーケビーチ沿い", lat:16.0610, lng:108.2468, q:"Four Points by Sheraton Danang"},
+  airport:    {n:"ダナン国際空港", e:"✈️", a:"ダナン", lat:16.0439, lng:108.1994, q:"Da Nang International Airport"},
+  soanha:     {n:"両替：Soạn Hà 金行", e:"💱", a:"ハン市場横", lat:16.0686, lng:108.2246, q:"Tiem Vang Soan Ha Han Market Da Nang"},
+  sontra:     {n:"ソンチャー夜市", e:"🌃", a:"ダナン(ドラゴン橋側)", lat:16.0625, lng:108.2298, q:"Son Tra Night Market Da Nang"},
+  dragon:     {n:"ドラゴン橋（ロン橋）", e:"🐉", a:"ダナン(ハン川)", lat:16.0612, lng:108.2300, q:"Dragon Bridge Da Nang"},
+  bana:       {n:"バナヒルズ（神の手）", e:"⛰", a:"郊外", lat:15.9977, lng:107.9966, q:"Ba Na Hills Golden Bridge"},
+  hoian:      {n:"ホイアン旧市街（夜ランタン）", e:"🏮", a:"ホイアン", lat:15.8801, lng:108.3265, q:"Hoi An Ancient Town"},
+  coconut:    {n:"ココナッツボート", e:"🛶", a:"ホイアン(Cam Thanh)", lat:15.8918, lng:108.3560, q:"Cam Thanh Coconut Basket Boat Hoi An"},
+  mykhe:      {n:"ミーケビーチ", e:"🏖", a:"ホテル前", lat:16.0544, lng:108.2480, q:"My Khe Beach Da Nang"},
+  madamelan:  {n:"マダムラン（夕食）", e:"🍽", a:"ダナン", lat:16.0786, lng:108.2244, q:"Madame Lan Restaurant Da Nang"},
+  anthoi:     {n:"Ăn Thôi（夕食）", e:"🍽", a:"ダナン", lat:16.0470, lng:108.2440, q:"An Thoi restaurant Da Nang"},
+  sails:      {n:"SAILS バインミー", e:"🥖", a:"ダナン", lat:16.0435, lng:108.2470, q:"Banh mi Sails and Skewers Da Nang"},
+  phuong:     {n:"Bánh Mỳ Phượng", e:"🥖", a:"ホイアン", lat:15.8782, lng:108.3273, q:"Banh Mi Phuong Hoi An"},
+  littlemango:{n:"Little Mango", e:"🥭", a:"ダナン", lat:16.0600, lng:108.2300, q:"Little Mango Da Nang"},
+  ubebe:      {n:"Ubebe（マンゴーかき氷）", e:"🥭", a:"ホイアン", lat:15.8775, lng:108.3290, q:"Ubebe Hoi An"},
+  thekheo:    {n:"The Kheo Coffee & Brunch", e:"☕️", a:"ダナン", lat:16.0670, lng:108.2210, q:"The Kheo Coffee Brunch Da Nang"},
+  tan:        {n:"Tân Coffee", e:"☕️", a:"ダナン", lat:16.0600, lng:108.2150, q:"Tan Coffee Nguyen Thien Thuat Da Nang"},
+  ivegan:     {n:"IVEGAN（アサイー）", e:"☕️", a:"ダナン", lat:16.0380, lng:108.2470, q:"IVEGAN Supershop Da Nang"},
+  cuango:     {n:"Cửa Ngõ Cafe", e:"☕️", a:"ダナン", lat:16.0500, lng:108.2430, q:"Cua Ngo Cafe Da Nang"},
+  espresso:   {n:"The Espresso Station", e:"☕️", a:"ホイアン", lat:15.8806, lng:108.3270, q:"The Espresso Station Hoi An"},
+  goldenlotus:{n:"Golden Lotus Spa", e:"💆", a:"ダナン", lat:16.0400, lng:108.2430, q:"Golden Lotus Oriental Organic Spa Da Nang"},
+  herbal:     {n:"Herbal Spa", e:"💆", a:"ダナン", lat:16.0550, lng:108.2430, q:"Herbal Spa Da Nang"},
+  brown:      {n:"Brown Spa", e:"💆", a:"ダナン", lat:16.0470, lng:108.2440, q:"Brown Spa Da Nang"},
+  nguon:      {n:"Nguon Spa", e:"💆", a:"ダナン", lat:16.0490, lng:108.2440, q:"Nguon Spa Da Nang"}
+};
+let CUSTOM = JSON.parse(localStorage.getItem('vn_custplaces_real')||'{}');
+let PLACES = Object.assign({}, BASE_PLACES, CUSTOM);
+function persistCustom(){ localStorage.setItem('vn_custplaces_real', JSON.stringify(CUSTOM)); scheduleCloudPush(); }
+
+/* ===== クラウド同期（2人で常に共有・無料Supabase隔離プロジェクト） ===== */
+const SB_URL='https://nlcrdiehnammedkfjttx.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sY3JkaWVobmFtbWVka2ZqdHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMzg1NjMsImV4cCI6MjA5NzcxNDU2M30.qkWj0M6CmKOIJmodworWunXRCEftMHI28EMjfMH3j1k';
+let sb=null, cloudReady=false, myTs=0, lastTs=0, pushTimer=null;
+function localTs(){ return parseInt(localStorage.getItem('vn_ts')||'0',10); }
+function setLocalTs(t){ localStorage.setItem('vn_ts', t); }
+
+const STAY = {bana:330,hoian:120,coconut:90,mykhe:90,madamelan:75,anthoi:75,sails:30,phuong:20,littlemango:20,ubebe:40,thekheo:45,tan:45,ivegan:45,cuango:45,espresso:45,goldenlotus:90,herbal:90,brown:90,nguon:90,hotel:0,airport:60,soanha:15,sontra:40,dragon:20};
+
+const GROUPS = [
+  ["拠点", ["hotel","airport"]],
+  ["両替", ["soanha"]],
+  ["ナイト/夜景", ["sontra","dragon"]],
+  ["郊外", ["bana"]],
+  ["ホイアン", ["hoian","coconut","phuong","ubebe","espresso"]],
+  ["ダナン スポット/ビーチ", ["mykhe"]],
+  ["ダナン グルメ", ["madamelan","anthoi","sails","littlemango"]],
+  ["ダナン カフェ", ["thekheo","tan","ivegan","cuango"]],
+  ["スパ", ["goldenlotus","herbal","brown","nguon"]]
+];
+
+/* ============ ヘルパー ============ */
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+let FX = parseFloat(localStorage.getItem('vn_fx')||'0.006') || 0.006; // VND→JPY
+const yen=v=>Math.round(v*FX).toLocaleString('ja-JP');
+function haversine(a,b){
+  const R=6371, toR=x=>x*Math.PI/180;
+  const dLat=toR(b.lat-a.lat), dLng=toR(b.lng-a.lng);
+  const s=Math.sin(dLat/2)**2 + Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+function fareFromKm(km){ return Math.round((12000 + km*12500)/1000)*1000; }
+function pad(n){ return (n<10?'0':'')+n; }
+function parseHM(s){ if(!s) return 0; const [h,m]=s.split(':').map(Number); return h*60+(m||0); }
+function fmtHM(mins){ mins=Math.round(mins); const h=Math.floor(mins/60)%24, m=mins%60; return h+':'+pad(m); }
+
+/* ============ ルート（OSRM + フォールバック） ============ */
+let routeCache = JSON.parse(localStorage.getItem('vn_routecache')||'{}');
+function rkey(idA,idB){ const a=PLACES[idA],b=PLACES[idB]; return a.lat.toFixed(4)+','+a.lng.toFixed(4)+'|'+b.lat.toFixed(4)+','+b.lng.toFixed(4); }
+function travelSync(idA,idB){
+  const a=PLACES[idA], b=PLACES[idB]; if(!a||!b) return null;
+  const est = haversine(a,b)*1.3;
+  if(est < 0.8){ return {mode:'walk', km:est, min:Math.max(2,Math.round(est/4.8*60)), fare:0, real:false}; }
+  const c = routeCache[rkey(idA,idB)];
+  if(c){ return {mode:'car', km:c.km, min:c.min, fare:fareFromKm(c.km), real:true}; }
+  const speed = est>15?45:(est>6?32:22);
+  return {mode:'car', km:est, min:Math.max(5,Math.round(est/speed*60/5)*5), fare:fareFromKm(est), real:false};
+}
+async function fetchRoute(idA,idB){
+  const a=PLACES[idA], b=PLACES[idB];
+  const url=`https://router.project-osrm.org/route/v1/driving/${a.lng},${a.lat};${b.lng},${b.lat}?overview=false`;
+  const r=await fetch(url); const j=await r.json();
+  if(j.code==='Ok' && j.routes && j.routes[0]){
+    const km=j.routes[0].distance/1000, min=Math.max(1,Math.round(j.routes[0].duration/60));
+    routeCache[rkey(idA,idB)]={km,min};
+    return true;
+  }
+  return false;
+}
+let fetching=false;
+async function ensureRoutes(){
+  if(fetching || !navigator.onLine) return;
+  const pairs=new Set();
+  Object.values(DAYS).forEach(arr=>{ for(let i=0;i<arr.length-1;i++){ const t=travelSync(arr[i].id,arr[i+1].id); if(t&&t.mode!=='walk'&&!t.real) pairs.add(arr[i].id+'>'+arr[i+1].id);} });
+  ["airport","hoian","bana","coconut","tan","mykhe"].forEach(id=>{ const t=travelSync('hotel',id); if(t&&t.mode!=='walk'&&!t.real) pairs.add('hotel>'+id); });
+  if(!pairs.size) return;
+  fetching=true;
+  await Promise.allSettled([...pairs].map(p=>{ const [x,y]=p.split('>'); return fetchRoute(x,y).catch(()=>{}); }));
+  fetching=false;
+  localStorage.setItem('vn_routecache', JSON.stringify(routeCache));
+  renderPlanner(); renderMove();
+}
+
+/* ============ プラン状態 ============ */
+const DEFAULT_START = {d1:"17:55", d2:"08:30", d3:"08:00", d4:"08:00"};
+function mk(id,note,stay){ return {id,note,stay: stay==null?(STAY[id]||30):stay}; }
+const DEFAULT_DAYS = {
+  d1:[mk("airport","入国・荷物受取＋空港で最低限だけ両替",60),mk("hotel","チェックイン",30),mk("madamelan","夕食（ベトナム料理）",75),mk("littlemango","マンゴーで一息",20),mk("sontra","ソンチャー夜市を散策",40),mk("hotel","戻り",0)],
+  d2:[mk("hotel","",0),mk("mykhe","ビーチで朝ゆっくり",150),mk("coconut","ボート",90),mk("phuong","昼ごはん（世界一バインミー）",30),mk("ubebe","マンゴーかき氷で休憩",45),mk("hoian","旧市街散策→夕食→日没→ランタン+灯籠流し",240),mk("hotel","戻り",0)],
+  d3:[mk("hotel","出発",0),mk("soanha","まとめて両替（レート市内一番・手数料ほぼ0）",15),mk("thekheo","朝カフェ",45),mk("bana","神の手",330),mk("goldenlotus","カップルスパ",90),mk("anthoi","夕食（ベトナム料理）",75),mk("sontra","ソンチャー夜市で買い物＆ショー待ち",150),mk("dragon","ドラゴン橋 21時の火・水ショー（金曜！）",20),mk("hotel","戻り",0)],
+  d4:[mk("hotel","チェックアウト",0),mk("sails","朝食バインミー（早朝営業は要確認）",30),mk("airport","11:50発",0)]
+};
+let DAYS = JSON.parse(localStorage.getItem('vn_days_v3')||'null') || JSON.parse(JSON.stringify(DEFAULT_DAYS));
+let START = JSON.parse(localStorage.getItem('vn_start_v3')||'null') || JSON.parse(JSON.stringify(DEFAULT_START));
+function saveDays(){ localStorage.setItem('vn_days_v3', JSON.stringify(DAYS)); localStorage.setItem('vn_start_v3', JSON.stringify(START)); scheduleCloudPush(); }
+// 既存の保存プランを改善版の既定に一度だけ上書き（同系統の料理を同日に重ねない／夜スポット追加）
+// メモ・予算・持ち物・チェックは別キー保存のため保持される
+(function migrateV5(){
+  if(localStorage.getItem('vn_mig_v5')) return;
+  DAYS=JSON.parse(JSON.stringify(DEFAULT_DAYS));
+  START=JSON.parse(JSON.stringify(DEFAULT_START));
+  localStorage.setItem('vn_mig_v5','1'); saveDays();
+})();
+
+function optionsHTML(){
+  let extra='';
+  const customIds=Object.keys(CUSTOM);
+  return GROUPS.map(([g,ids])=>`<optgroup label="${g}">`+ids.filter(id=>PLACES[id]).map(id=>`<option value="${id}">${PLACES[id].e} ${PLACES[id].n}</option>`).join('')+`</optgroup>`).join('')
+    + (customIds.length?`<optgroup label="追加した場所">`+customIds.map(id=>`<option value="${id}">${PLACES[id].e} ${PLACES[id].n}</option>`).join('')+`</optgroup>`:'');
+}
+
+function renderPlanner(){
+  document.querySelectorAll('.startrow input[type=time]').forEach(inp=>{ inp.value = START[inp.dataset.start]; });
+  document.querySelectorAll('.planner').forEach(box=>{
+    const day=box.dataset.day, arr=DAYS[day];
+    // 到着時刻計算
+    let t=parseHM(START[day]); const arrTimes=[];
+    arr.forEach((s,i)=>{ arrTimes[i]=t; t+=(s.stay||0); const nx=arr[i+1]; if(nx){ const tr=travelSync(s.id,nx.id); if(tr) t+=tr.min; } });
+    let html='';
+    arr.forEach((stop,i)=>{
+      const p=PLACES[stop.id]; if(!p) return;
+      html+=`<div class="stop">
+        <div class="emo">${p.e}</div>
+        <div class="body">
+          <div class="top"><span class="arr">🕐 ${fmtHM(arrTimes[i])}着</span><span class="nm">${p.n}</span></div>
+          <div class="ar">${p.a}</div>
+          <input class="nt" data-day="${day}" data-i="${i}" placeholder="メモ" value="${(stop.note||'').replace(/"/g,'&quot;')}">
+          <div class="stayrow">滞在 <input type="number" data-stay="${day}" data-i="${i}" value="${stop.stay||0}" min="0" step="5"> 分</div>
+        </div>
+        <div class="ctl">
+          <button data-act="up" data-day="${day}" data-i="${i}">↑</button>
+          <button data-act="down" data-day="${day}" data-i="${i}">↓</button>
+          <button class="del" data-act="del" data-day="${day}" data-i="${i}">×</button>
+        </div>
+      </div>`;
+      if(i<arr.length-1 && arr[i+1]){
+        const tr=travelSync(stop.id, arr[i+1].id);
+        if(tr){
+          const txt = tr.mode==='walk' ? `🚶 徒歩 約${tr.min}分` : `🚗 約${tr.min}分 ・ 約${fmt(tr.fare)}₫（約${yen(tr.fare)}円）`;
+          const tag = tr.mode==='walk' ? '' : (tr.real?'<span class="tag real">実測</span>':'<span class="tag est">目安</span>');
+          html+=`<div class="seg ${tr.mode==='walk'?'walk':''}"><div class="info"><b>${txt}</b>${tag}</div><a class="rt" target="_blank" href="https://www.google.com/maps/dir/?api=1&origin=${p.lat},${p.lng}&destination=${PLACES[arr[i+1].id].lat},${PLACES[arr[i+1].id].lng}&travelmode=${tr.mode==='walk'?'walking':'driving'}">ルート</a></div>`;
+        }
+      }
+    });
+    let totMin=0, totFare=0;
+    for(let i=0;i<arr.length-1;i++){ const tr=travelSync(arr[i].id,arr[i+1].id); if(tr){totMin+=tr.min; totFare+=tr.fare;} }
+    html+=`<div class="addwrap"><select data-day="${day}">${optionsHTML()}</select><button data-act="add" data-day="${day}">＋追加</button></div>
+      <div class="geowrap"><input data-geo="${day}" placeholder="店名・住所で検索して追加"><button data-act="geo" data-day="${day}">🔍検索追加</button></div>
+      <div class="daysum">行程終了 約${fmtHM(t)} ・ 移動合計 <b>約${totMin}分</b> ・ Grab概算 <b>約${fmt(totFare)}₫</b>（約${yen(totFare)}円）</div>`;
+    box.innerHTML=html;
+  });
+  renderAirportCheck();
+}
+
+function renderAirportCheck(){
+  const el=document.getElementById('airportCheck'); if(!el) return;
+  const arr=DAYS.d4; let t=parseHM(START.d4); let apArr=null;
+  arr.forEach((s,i)=>{ if(s.id==='airport') apArr=t; t+=(s.stay||0); const nx=arr[i+1]; if(nx){const tr=travelSync(s.id,nx.id); if(tr)t+=tr.min;} });
+  const FLIGHT=parseHM("11:50"), LATEST=FLIGHT-150; // 出発2.5h前
+  if(apArr==null){ el.innerHTML=`<div class="tip">空港を行程に追加すると、出発2.5時間前（9:20）までに着けるか自動チェックします。</div>`; return; }
+  if(apArr<=LATEST){
+    el.innerHTML=`<div class="ok">✅ 空港着 約${fmtHM(apArr)}。11:50発の2.5時間前（${fmtHM(LATEST)}）に間に合います。チェックアウトは朝のうちに。</div>`;
+  } else {
+    el.innerHTML=`<div class="warn">⚠️ 空港着 約${fmtHM(apArr)} は遅すぎ。11:50発の国際線は ${fmtHM(LATEST)} までに着きたい。開始時刻を早めるか滞在を短くしてください。</div>`;
+  }
+}
+
+function renderMove(){
+  const targets=["airport","hoian","bana","coconut","tan","mykhe"];
+  document.getElementById('hotelTable').innerHTML = targets.map(id=>{
+    const t=travelSync("hotel",id); if(!t) return '';
+    const val = t.mode==='walk' ? `徒歩 約${t.min}分` : `約${t.min}分 ・ 約${fmt(t.fare)}₫${t.real?'':' (目安)'}`;
+    const p=PLACES[id];
+    return `<div class="mvseg"><span class="lbl">${p.e} ${p.n}</span><span class="val">${val}</span><a class="rt" target="_blank" href="https://www.google.com/maps/dir/?api=1&origin=${PLACES.hotel.lat},${PLACES.hotel.lng}&destination=${p.lat},${p.lng}&travelmode=${t.mode==='walk'?'walking':'driving'}">ルート</a></div>`;
+  }).join('');
+  const titles={d1:"1日目（夜・到着）",d2:"2日目（バナヒルズ）",d3:"3日目（ホイアン）",d4:"4日目（出発）"};
+  let html='';
+  ["d1","d2","d3","d4"].forEach(day=>{
+    const arr=DAYS[day]; let rows=''; let totMin=0,totFare=0;
+    for(let i=0;i<arr.length-1;i++){
+      const t=travelSync(arr[i].id,arr[i+1].id); if(!t) continue;
+      totMin+=t.min; totFare+=t.fare;
+      const val=t.mode==='walk'?`徒歩約${t.min}分`:`約${t.min}分・約${fmt(t.fare)}₫`;
+      const a=PLACES[arr[i].id], b=PLACES[arr[i+1].id];
+      rows+=`<div class="mvseg"><span class="lbl">${a.e}${a.n.replace(/（.*?）/,'')} → ${b.n.replace(/（.*?）/,'')}</span><span class="val">${val}</span><a class="rt" target="_blank" href="https://www.google.com/maps/dir/?api=1&origin=${a.lat},${a.lng}&destination=${b.lat},${b.lng}&travelmode=${t.mode==='walk'?'walking':'driving'}">ルート</a></div>`;
+    }
+    html+=`<div class="card"><h3>${titles[day]}</h3>${rows||'<p class="lead">区間なし</p>'}<div class="daysum">合計 <b>約${totMin}分</b> ・ <b>約${fmt(totFare)}₫</b>（約${yen(totFare)}円）</div></div>`;
+  });
+  document.getElementById('moveDays').innerHTML=html;
+}
+
+function renderAll(){ renderPlanner(); renderMove(); }
+
+/* ============ ジオコーディング（地点追加） ============ */
+async function geocodeAdd(day, query){
+  if(!query.trim()) return;
+  try{
+    const url=`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query+' Vietnam')}`;
+    const r=await fetch(url,{headers:{'Accept':'application/json'}});
+    const j=await r.json();
+    if(!j.length){ alert('見つかりませんでした。店名や住所を変えて試してください。'); return; }
+    const id='cust_'+Date.now();
+    CUSTOM[id]={n:query.trim(), e:'📌', a:'追加した場所', lat:parseFloat(j[0].lat), lng:parseFloat(j[0].lon), q:query.trim()};
+    PLACES=Object.assign({},BASE_PLACES,CUSTOM); persistCustom();
+    DAYS[day].push(mk(id,'',30)); saveDays();
+    renderAll(); ensureRoutes();
+  }catch(e){ alert('検索に失敗しました（ネット接続を確認してください）。'); }
+}
+
+/* ============ 天気（Open-Meteo・無料） ============ */
+const WMO=c=>{
+  if(c===0) return['☀️','快晴']; if(c<=2) return['🌤','晴れ'];
+  if(c===3) return['☁️','曇り']; if(c<=48) return['🌫','霧'];
+  if(c<=57) return['🌦','霧雨']; if(c<=67) return['🌧','雨'];
+  if(c<=77) return['❄️','雪']; if(c<=82) return['🌧','にわか雨'];
+  if(c<=86) return['🌨','にわか雪']; return['⛈','雷雨'];
+};
+async function loadWeather(){
+  const box=document.getElementById('weather'); if(!navigator.onLine){ box.style.display='none'; return; }
+  const spots=[['ダナン',16.06,108.22],['ホイアン',15.88,108.33]];
+  try{
+    const cards=await Promise.all(spots.map(async([name,la,lo])=>{
+      const url=`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FBangkok&forecast_days=4`;
+      const j=await (await fetch(url)).json();
+      const [ci]=WMO(j.current.weather_code);
+      let days='';
+      const wd=['日','月','火','水','木','金','土'];
+      for(let i=0;i<j.daily.time.length;i++){
+        const d=new Date(j.daily.time[i]+'T00:00');
+        const [ei]=WMO(j.daily.weather_code[i]);
+        days+=`<div><b>${i===0?'今日':(d.getMonth()+1)+'/'+d.getDate()}</b><span>${ei}</span>${Math.round(j.daily.temperature_2m_max[i])}°<br><span class="rain">☔${j.daily.precipitation_probability_max[i]??0}%</span></div>`;
+      }
+      return `<div class="wxc"><div class="city">${name}</div><div class="now"><span class="ico">${ci}</span> ${Math.round(j.current.temperature_2m)}°</div><div class="days">${days}</div></div>`;
+    }));
+    box.innerHTML=cards.join('');
+  }catch(e){ box.style.display='none'; }
+}
+
+/* ============ 為替（無料・キー不要） ============ */
+async function loadFX(){
+  const tip=document.getElementById('fxTip');
+  if(!navigator.onLine){ tip.textContent='💡 オフライン中。前回レート 1,000ドン≒'+Math.round(1000*FX)+'円で換算。'; renderB(); return; }
+  try{
+    const j=await (await fetch('https://open.er-api.com/v6/latest/VND')).json();
+    if(j&&j.rates&&j.rates.JPY){ FX=j.rates.JPY; localStorage.setItem('vn_fx', FX); }
+  }catch(e){}
+  tip.textContent='💡 リアルタイムレート：1,000ドン ≒ '+(1000*FX).toFixed(1)+'円（自動更新）';
+  renderB(); renderAll();
+}
+
+/* ============ イベント ============ */
+document.addEventListener('click', e=>{
+  const b=e.target.closest('button[data-act]'); if(!b) return;
+  const act=b.dataset.act, day=b.dataset.day, i=parseInt(b.dataset.i,10);
+  if(act==='add'){ const sel=document.querySelector(`select[data-day="${day}"]`); DAYS[day].push(mk(sel.value,'')); }
+  else if(act==='del'){ DAYS[day].splice(i,1); }
+  else if(act==='up' && i>0){ const a=DAYS[day]; [a[i-1],a[i]]=[a[i],a[i-1]]; }
+  else if(act==='down' && i<DAYS[day].length-1){ const a=DAYS[day]; [a[i+1],a[i]]=[a[i],a[i+1]]; }
+  else if(act==='geo'){ const inp=document.querySelector(`input[data-geo="${day}"]`); geocodeAdd(day, inp.value); return; }
+  else return;
+  saveDays(); renderAll(); ensureRoutes();
+});
+document.addEventListener('input', e=>{
+  if(e.target.classList.contains('nt')){ DAYS[e.target.dataset.day][+e.target.dataset.i].note=e.target.value; saveDays(); }
+  else if(e.target.dataset.stay!==undefined){ DAYS[e.target.dataset.stay][+e.target.dataset.i].stay=Math.max(0,parseInt(e.target.value,10)||0); saveDays(); renderPlanner(); }
+  else if(e.target.dataset.start!==undefined){ START[e.target.dataset.start]=e.target.value; saveDays(); renderPlanner(); }
+});
+document.getElementById('resetPlan').onclick=()=>{
+  if(confirm('プランを初期状態に戻しますか？（メモ・滞在時間も初期化）')){
+    DAYS=JSON.parse(JSON.stringify(DEFAULT_DAYS)); START=JSON.parse(JSON.stringify(DEFAULT_START)); saveDays(); renderAll(); ensureRoutes();
+  }
+};
+window.addEventListener('online', ()=>{ loadWeather(); loadFX(); ensureRoutes(); });
+
+/* タブ */
+document.querySelectorAll('nav button').forEach(b=>{ b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('section').forEach(x=>x.classList.remove('active'));
+  b.classList.add('on'); document.getElementById(b.dataset.s).classList.add('active'); window.scrollTo(0,0);
+};});
+document.querySelectorAll('.daytab button').forEach(b=>{ b.onclick=()=>{
+  document.querySelectorAll('.daytab button').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.day').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); document.getElementById(b.dataset.d).classList.add('on');
+};});
+document.querySelectorAll('input[type=checkbox]').forEach((c,i)=>{ const k='vn_chk_'+i; c.checked=localStorage.getItem(k)==='1'; c.onchange=()=>localStorage.setItem(k,c.checked?'1':'0'); });
+
+/* 予算 */
+let budget=JSON.parse(localStorage.getItem('vn_budget')||'[]');
+const list=document.getElementById('budgetList');
+function saveB(){ localStorage.setItem('vn_budget', JSON.stringify(budget)); scheduleCloudPush(); }
+function renderB(){
+  list.innerHTML='';
+  budget.forEach((it,i)=>{
+    const row=document.createElement('div'); row.className='bitem';
+    row.innerHTML='<span class="bn"></span><span class="bv"></span><button class="bx">×</button>';
+    row.querySelector('.bn').textContent=it.item;
+    row.querySelector('.bv').textContent=fmt(it.amt)+' ₫';
+    row.querySelector('.bx').onclick=()=>{ budget.splice(i,1); saveB(); renderB(); };
+    list.appendChild(row);
+  });
+  const total=budget.reduce((s,x)=>s+x.amt,0);
+  document.getElementById('bTotal').textContent=fmt(total);
+  document.getElementById('bYen').textContent='（約 '+yen(total)+' 円）';
+  document.getElementById('fxRow').textContent='レート 1,000ドン≒'+(1000*FX).toFixed(1)+'円';
+}
+function addB(){
+  const item=document.getElementById('bItem'), amt=document.getElementById('bAmt');
+  const v=parseInt(amt.value,10);
+  if(!item.value.trim()||!v||v<0) return;
+  budget.push({item:item.value.trim(), amt:v}); saveB(); renderB(); item.value=''; amt.value=''; item.focus();
+}
+document.getElementById('bAdd').onclick=addB;
+document.getElementById('bAmt').addEventListener('keydown',e=>{ if(e.key==='Enter') addB(); });
+
+/* ============ 持ち物リスト ============ */
+const DEFAULT_PACK=["パスポート","現金・クレジットカード","スマホ・充電ケーブル","モバイルバッテリー","変換プラグ","eSIM / SIM","日焼け止め","帽子・サングラス","羽織りもの（バナヒルズ用）","常備薬","水着","歯ブラシ・化粧品","歩きやすい靴"];
+let packing=JSON.parse(localStorage.getItem('vn_packing')||'null') || DEFAULT_PACK.map(t=>({t,done:false}));
+const packBox=document.getElementById('packList');
+function savePack(){ localStorage.setItem('vn_packing', JSON.stringify(packing)); scheduleCloudPush(); }
+function renderPack(){
+  packBox.innerHTML='';
+  packing.forEach((it,i)=>{
+    const row=document.createElement('div'); row.className='pkitem';
+    row.innerHTML=`<input type="checkbox" ${it.done?'checked':''}><span class="pn ${it.done?'done':''}"></span><button class="px">×</button>`;
+    row.querySelector('.pn').textContent=it.t;
+    row.querySelector('input').onchange=e=>{ packing[i].done=e.target.checked; savePack(); renderPack(); };
+    row.querySelector('.px').onclick=()=>{ packing.splice(i,1); savePack(); renderPack(); };
+    packBox.appendChild(row);
+  });
+}
+function addPack(){
+  const inp=document.getElementById('pkItem'); const v=inp.value.trim(); if(!v) return;
+  packing.push({t:v,done:false}); savePack(); renderPack(); inp.value=''; inp.focus();
+}
+document.getElementById('pkAdd').onclick=addPack;
+document.getElementById('pkItem').addEventListener('keydown',e=>{ if(e.key==='Enter') addPack(); });
+
+/* ============ 共有リンク ============ */
+function b64encode(str){ return btoa(unescape(encodeURIComponent(str))); }
+function b64decode(str){ return decodeURIComponent(escape(atob(str))); }
+function buildShare(){
+  const payload={v:3, days:DAYS, start:START, custom:CUSTOM, budget, packing};
+  return location.origin+location.pathname+'#plan='+b64encode(JSON.stringify(payload));
+}
+document.getElementById('shareBtn').onclick=async()=>{
+  const link=buildShare();
+  try{ await navigator.clipboard.writeText(link); alert('共有リンクをコピーしました！LINEなどで相手に送れます。'); }
+  catch(e){ prompt('このリンクをコピーして共有してください：', link); }
+};
+function tryImportFromHash(){
+  if(!location.hash.startsWith('#plan=')) return false;
+  try{
+    const data=JSON.parse(b64decode(location.hash.slice(6)));
+    if(!data.days) return false;
+    if(confirm('共有された旅程を読み込みますか？現在の内容は上書きされます。')){
+      DAYS=data.days; START=data.start||DEFAULT_START;
+      CUSTOM=data.custom||{}; PLACES=Object.assign({},BASE_PLACES,CUSTOM); persistCustom();
+      budget=data.budget||[]; packing=data.packing||packing;
+      saveDays(); saveB(); savePack();
+    }
+    history.replaceState(null,'',location.pathname);
+    return true;
+  }catch(e){ return false; }
+}
+
+/* ===== クラウド同期 本体 ===== */
+function bundle(){ return {days:DAYS, start:START, budget:budget, packing:packing, custom:CUSTOM}; }
+function applyBundle(b){
+  if(!b) return;
+  if(b.days) DAYS=b.days;
+  if(b.start) START=b.start;
+  if(b.budget) budget=b.budget;
+  if(b.packing) packing=b.packing;
+  if(b.custom){ CUSTOM=b.custom; PLACES=Object.assign({},BASE_PLACES,CUSTOM); }
+  localStorage.setItem('vn_days_v3',JSON.stringify(DAYS));
+  localStorage.setItem('vn_start_v3',JSON.stringify(START));
+  localStorage.setItem('vn_budget',JSON.stringify(budget));
+  localStorage.setItem('vn_packing',JSON.stringify(packing));
+  localStorage.setItem('vn_custplaces_real',JSON.stringify(CUSTOM));
+  renderAll(); renderB(); renderPack();
+}
+function scheduleCloudPush(){
+  if(!cloudReady) return;
+  clearTimeout(pushTimer);
+  pushTimer=setTimeout(cloudPush, 800);
+}
+async function cloudPush(){
+  if(!sb || !navigator.onLine) return;
+  myTs=Date.now(); lastTs=myTs; setLocalTs(myTs);
+  try{ await sb.from('trip_plans').update({data:bundle(), updated_at:myTs}).eq('id','main'); }catch(e){}
+}
+async function cloudPull(){
+  if(!cloudReady || !sb || !navigator.onLine) return;
+  try{
+    const {data}=await sb.from('trip_plans').select('data,updated_at').eq('id','main').maybeSingle();
+    if(data && data.updated_at>lastTs && data.updated_at!==myTs){
+      lastTs=data.updated_at; setLocalTs(lastTs); applyBundle(data.data);
+      flash('相手の更新を反映しました');
+    }
+  }catch(e){}
+}
+function flash(msg){
+  let el=document.getElementById('syncFlash');
+  if(!el){ el=document.createElement('div'); el.id='syncFlash'; el.style.cssText='position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--green-d);color:#fff;font-size:12px;padding:7px 14px;border-radius:999px;z-index:99;box-shadow:0 3px 12px rgba(0,0,0,.2);opacity:0;transition:opacity .3s'; document.body.appendChild(el); }
+  el.textContent='🔄 '+msg; el.style.opacity='1';
+  clearTimeout(el._t); el._t=setTimeout(()=>el.style.opacity='0',2200);
+}
+async function cloudInit(){
+  if(!window.supabase || !navigator.onLine) return;
+  try{
+    sb=window.supabase.createClient(SB_URL, SB_KEY);
+    const {data,error}=await sb.from('trip_plans').select('data,updated_at').eq('id','main').maybeSingle();
+    if(error) return;
+    cloudReady=true;
+    if(data && data.data && data.updated_at>localTs()){
+      lastTs=data.updated_at; setLocalTs(lastTs); applyBundle(data.data);
+    }else{
+      await cloudPush(); // 初回 or ローカルが新しい→共有へ反映
+    }
+    sb.channel('trip').on('postgres_changes',{event:'UPDATE',schema:'public',table:'trip_plans',filter:'id=eq.main'},payload=>{
+      const r=payload.new;
+      if(r && r.updated_at && r.updated_at!==myTs && r.updated_at>lastTs){
+        lastTs=r.updated_at; setLocalTs(lastTs); applyBundle(r.data); flash('相手の更新を反映しました');
+      }
+    }).subscribe();
+    setInterval(cloudPull, 15000);
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden) cloudPull(); });
+  }catch(e){}
+}
+window.addEventListener('online', cloudInit);
+
+/* 初期化 */
+tryImportFromHash();
+renderAll(); renderB(); renderPack();
+cloudInit();
+ensureRoutes(); loadWeather(); loadFX();
+</script>
+</body>
+</html>
