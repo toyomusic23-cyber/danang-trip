@@ -110,6 +110,16 @@
   .btot{margin-top:10px; font-size:14px}
   .btot b{font-size:20px; color:var(--green-d)}
   .btot #bYen{font-size:12.5px; color:var(--sub); margin-left:4px}
+  .payrow{display:flex;align-items:center;gap:6px;margin-top:9px;font-size:12px;color:var(--sub);flex-wrap:wrap}
+  .paysel{border:1px solid var(--line);background:#fff;color:var(--sub);border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:700}
+  .paysel.on{background:var(--green);color:#fff;border-color:var(--green)}
+  .bitem .pchip{font-size:10.5px;font-weight:700;background:#eef4f1;color:var(--green-d);border-radius:6px;padding:1px 7px;margin-right:7px;flex-shrink:0}
+  .memberrow{display:flex;gap:7px;margin-bottom:6px}
+  .memberrow input{flex:1;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:12.5px;min-width:0}
+  .settlebox{font-size:13px;line-height:1.7}
+  .settlebox .srow{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:4px 0}
+  .settlebox .res{margin-top:9px;background:#eef4f1;border-radius:10px;padding:10px 12px;color:var(--green-d);font-weight:700}
+  .settlebox .res b{font-size:17px}
   .fxrow{font-size:11.5px;color:var(--sub);margin-top:6px}
   .chk{display:flex; align-items:flex-start; gap:10px; padding:7px 0; border-bottom:1px dashed var(--line); font-size:13.5px}
   .chk:last-child{border:none}
@@ -413,9 +423,13 @@
     <p>手数料無料（<b>NoFee</b>）の店で換金。<b>「万」ではなく「千」単位</b>で両替すると小銭ができて使いやすい。</p>
     <div class="tip" id="fxTip">💡 レート取得中…</div>
   </div>
-  <div class="card"><h3>🧾 予算メモ</h3>
-    <p class="lead" style="margin:2px 0 8px">使った金額をメモ。合計と円換算（リアルタイムレート）を自動表示。</p>
+  <div class="card"><h3>🧾 予算メモ＆割り勘</h3>
+    <p class="lead" style="margin:2px 0 8px">支出を「払った人」つきで記録。合計・円換算と精算額を自動計算。</p>
     <div id="budgetList"></div>
+    <div class="payrow">払った人：
+      <button class="paysel on" data-p="a" id="payA">自分</button>
+      <button class="paysel" data-p="b" id="payB">パートナー</button>
+    </div>
     <div class="brow">
       <input id="bItem" class="bin" placeholder="項目（例：バナヒルズ）">
       <input id="bAmt" class="bin amt" type="number" inputmode="numeric" placeholder="ドン">
@@ -423,6 +437,14 @@
     </div>
     <div class="btot">合計 <b id="bTotal">0</b> ドン <span id="bYen"></span></div>
     <div class="fxrow" id="fxRow"></div>
+    <div class="tip">💡 行の名前タグをタップすると、払った人を切り替えられます。</div>
+  </div>
+  <div class="card"><h3>💸 割り勘精算（50:50）</h3>
+    <div class="memberrow">
+      <input id="nameA" placeholder="自分の名前" maxlength="12">
+      <input id="nameB" placeholder="相手の名前" maxlength="12">
+    </div>
+    <div class="settlebox" id="settleBox"></div>
   </div>
   <div class="card"><h3>🎒 持ち物リスト</h3>
     <p class="lead" style="margin:2px 0 8px">チェック・追加・削除できます（自動保存）。</p>
@@ -785,33 +807,64 @@ document.querySelectorAll('.daytab button').forEach(b=>{ b.onclick=()=>{
 };});
 document.querySelectorAll('input[type=checkbox]').forEach((c,i)=>{ const k='vn_chk_'+i; c.checked=localStorage.getItem(k)==='1'; c.onchange=()=>localStorage.setItem(k,c.checked?'1':'0'); });
 
-/* 予算 */
+/* 予算＆割り勘 */
 let budget=JSON.parse(localStorage.getItem('vn_budget')||'[]');
+let members=JSON.parse(localStorage.getItem('vn_members')||'null')||{a:'自分',b:'パートナー'};
+let curPayer='a';
 const list=document.getElementById('budgetList');
 function saveB(){ localStorage.setItem('vn_budget', JSON.stringify(budget)); scheduleCloudPush(); }
+function saveMembers(){ localStorage.setItem('vn_members', JSON.stringify(members)); scheduleCloudPush(); }
+function pname(p){ return (p==='b'?members.b:members.a)||(p==='b'?'相手':'自分'); }
 function renderB(){
   list.innerHTML='';
   budget.forEach((it,i)=>{
+    const p=it.payer==='b'?'b':'a';
     const row=document.createElement('div'); row.className='bitem';
-    row.innerHTML='<span class="bn"></span><span class="bv"></span><button class="bx">×</button>';
+    row.innerHTML='<span class="pchip"></span><span class="bn"></span><span class="bv"></span><button class="bx">×</button>';
+    const chip=row.querySelector('.pchip'); chip.textContent=pname(p);
+    chip.onclick=()=>{ budget[i].payer=(p==='a'?'b':'a'); saveB(); renderB(); };
     row.querySelector('.bn').textContent=it.item;
     row.querySelector('.bv').textContent=fmt(it.amt)+' ₫';
     row.querySelector('.bx').onclick=()=>{ budget.splice(i,1); saveB(); renderB(); };
     list.appendChild(row);
   });
   const total=budget.reduce((s,x)=>s+x.amt,0);
+  const paidA=budget.filter(x=>x.payer!=='b').reduce((s,x)=>s+x.amt,0);
+  const paidB=total-paidA;
   document.getElementById('bTotal').textContent=fmt(total);
   document.getElementById('bYen').textContent='（約 '+yen(total)+' 円）';
   document.getElementById('fxRow').textContent='レート 1,000ドン≒'+(1000*FX).toFixed(1)+'円';
+  document.getElementById('payA').textContent=pname('a');
+  document.getElementById('payB').textContent=pname('b');
+  document.getElementById('payA').classList.toggle('on',curPayer==='a');
+  document.getElementById('payB').classList.toggle('on',curPayer==='b');
+  const na=document.getElementById('nameA'), nb=document.getElementById('nameB');
+  if(na && document.activeElement!==na) na.value=members.a;
+  if(nb && document.activeElement!==nb) nb.value=members.b;
+  const half=total/2, balA=paidA-half;
+  let res;
+  if(total===0) res='まだ支出がありません';
+  else if(Math.abs(balA)<1) res='精算済み（差額なし）👍';
+  else if(balA>0) res=`<b>${pname('b')}</b> が <b>${pname('a')}</b> に <b>${fmt(balA)}₫</b>（約${yen(balA)}円）`;
+  else res=`<b>${pname('a')}</b> が <b>${pname('b')}</b> に <b>${fmt(-balA)}₫</b>（約${yen(-balA)}円）`;
+  document.getElementById('settleBox').innerHTML=
+    `<div class="srow"><span>${pname('a')}の支払</span><span>${fmt(paidA)}₫（約${yen(paidA)}円）</span></div>`+
+    `<div class="srow"><span>${pname('b')}の支払</span><span>${fmt(paidB)}₫（約${yen(paidB)}円）</span></div>`+
+    `<div class="srow"><span>合計 / 1人あたり</span><span>${fmt(total)} / ${fmt(half)}₫</span></div>`+
+    `<div class="res">🤝 ${res}</div>`;
 }
 function addB(){
   const item=document.getElementById('bItem'), amt=document.getElementById('bAmt');
   const v=parseInt(amt.value,10);
   if(!item.value.trim()||!v||v<0) return;
-  budget.push({item:item.value.trim(), amt:v}); saveB(); renderB(); item.value=''; amt.value=''; item.focus();
+  budget.push({item:item.value.trim(), amt:v, payer:curPayer}); saveB(); renderB(); item.value=''; amt.value=''; item.focus();
 }
 document.getElementById('bAdd').onclick=addB;
 document.getElementById('bAmt').addEventListener('keydown',e=>{ if(e.key==='Enter') addB(); });
+document.getElementById('payA').onclick=()=>{ curPayer='a'; renderB(); };
+document.getElementById('payB').onclick=()=>{ curPayer='b'; renderB(); };
+document.getElementById('nameA').addEventListener('input',e=>{ members.a=e.target.value; saveMembers(); renderB(); });
+document.getElementById('nameB').addEventListener('input',e=>{ members.b=e.target.value; saveMembers(); renderB(); });
 
 /* ============ 持ち物リスト ============ */
 const DEFAULT_PACK=["パスポート","現金・クレジットカード","スマホ・充電ケーブル","モバイルバッテリー","変換プラグ","eSIM / SIM","日焼け止め","帽子・サングラス","羽織りもの（バナヒルズ用）","常備薬","水着","歯ブラシ・化粧品","歩きやすい靴"];
@@ -865,18 +918,20 @@ function tryImportFromHash(){
 }
 
 /* ===== クラウド同期 本体 ===== */
-function bundle(){ return {days:DAYS, start:START, budget:budget, packing:packing, custom:CUSTOM}; }
+function bundle(){ return {days:DAYS, start:START, budget:budget, packing:packing, custom:CUSTOM, members:members}; }
 function applyBundle(b){
   if(!b) return;
   if(b.days) DAYS=b.days;
   if(b.start) START=b.start;
   if(b.budget) budget=b.budget;
   if(b.packing) packing=b.packing;
+  if(b.members) members=b.members;
   if(b.custom){ CUSTOM=b.custom; PLACES=Object.assign({},BASE_PLACES,CUSTOM); }
   localStorage.setItem('vn_days_v3',JSON.stringify(DAYS));
   localStorage.setItem('vn_start_v3',JSON.stringify(START));
   localStorage.setItem('vn_budget',JSON.stringify(budget));
   localStorage.setItem('vn_packing',JSON.stringify(packing));
+  localStorage.setItem('vn_members',JSON.stringify(members));
   localStorage.setItem('vn_custplaces_real',JSON.stringify(CUSTOM));
   renderAll(); renderB(); renderPack();
 }
